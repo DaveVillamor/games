@@ -1,0 +1,265 @@
+[gd_scene format=3 uid="uid://bxxah07gmqk8o"]
+
+[ext_resource type="Script" uid="uid://c6d054xhj7j8r" path="res://player.gd" id="1_player"]
+[ext_resource type="Texture2D" uid="uid://8dglo2hq588b" path="res://materiales_base/textures/red_sandstone_tiles_diff_2k.jpg" id="2_floor_albedo"]
+[ext_resource type="Texture2D" uid="uid://ljpj51bi5yoo" path="res://materiales_base/textures/red_sandstone_tiles_nor_gl_2k.jpg" id="3_floor_normal"]
+[ext_resource type="Texture2D" uid="uid://do3xxumkq8cl3" path="res://materiales_base/textures/red_sandstone_tiles_arm_2k.jpg" id="4_floor_arm"]
+[ext_resource type="Script" uid="uid://bn7wpq4xx8ixv" path="res://arena.gd" id="5_arena"]
+[ext_resource type="Script" uid="uid://c1r203bc5562p" path="res://spider.gd" id="6_spider"]
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.025, 0.035, 0.06, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.35, 0.42, 0.58, 1)
+ambient_light_energy = 1.15
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.12, 0.15, 0.21, 1)
+albedo_texture = ExtResource("2_floor_albedo")
+metallic = 0.15
+roughness = 0.7
+roughness_texture = ExtResource("4_floor_arm")
+roughness_texture_channel = 1
+normal_enabled = true
+normal_texture = ExtResource("3_floor_normal")
+uv1_scale = Vector3(4, 4, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_floor"]
+material = SubResource("Material_floor")
+size = Vector3(14, 0.2, 10)
+
+[sub_resource type="BoxShape3D" id="Shape_floor"]
+size = Vector3(14, 0.2, 10)
+
+[sub_resource type="StandardMaterial3D" id="Material_wall"]
+albedo_color = Color(0.32, 0.37, 0.47, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="Mesh_wall_long"]
+material = SubResource("Material_wall")
+size = Vector3(14, 4, 0.25)
+
+[sub_resource type="BoxShape3D" id="Shape_wall_long"]
+size = Vector3(14, 4, 0.25)
+
+[sub_resource type="BoxMesh" id="Mesh_wall_short"]
+material = SubResource("Material_wall")
+size = Vector3(0.25, 4, 10)
+
+[sub_resource type="BoxShape3D" id="Shape_wall_short"]
+size = Vector3(0.25, 4, 10)
+
+[sub_resource type="StandardMaterial3D" id="Material_hull"]
+albedo_color = Color(0.18, 0.23, 0.32, 1)
+metallic = 0.42
+roughness = 0.52
+
+[sub_resource type="StandardMaterial3D" id="Material_accent"]
+albedo_color = Color(0.08, 0.55, 0.95, 1)
+emission_enabled = true
+emission = Color(0.02, 0.28, 0.8, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="BoxMesh" id="Mesh_light_panel"]
+material = SubResource("Material_accent")
+size = Vector3(5.5, 0.08, 0.45)
+
+[sub_resource type="CapsuleShape3D" id="Shape_player"]
+radius = 0.35
+height = 1.8
+
+[node name="Room" type="Node3D" unique_id=706869818]
+script = ExtResource("5_arena")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=760751]
+environment = SubResource("Environment_room")
+
+[node name="KeyLight" type="OmniLight3D" parent="." unique_id=214366173]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
+light_color = Color(0.72, 0.85, 1, 1)
+light_energy = 4.0
+shadow_enabled = true
+omni_range = 11.0
+
+[node name="WarmLight" type="OmniLight3D" parent="." unique_id=878999347]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 2.2, -3.5)
+light_color = Color(1, 0.52, 0.24, 1)
+light_energy = 2.0
+omni_range = 6.0
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=220965279]
+
+[node name="Mesh" type="MeshInstance3D" parent="Floor" unique_id=1018293188]
+mesh = SubResource("Mesh_floor")
+
+[node name="Collision" type="CollisionShape3D" parent="Floor" unique_id=1803026076]
+shape = SubResource("Shape_floor")
+
+[node name="BackWall" type="StaticBody3D" parent="." unique_id=519242451]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -4.875)
+
+[node name="Mesh" type="MeshInstance3D" parent="BackWall" unique_id=2067641859]
+visible = false
+mesh = SubResource("Mesh_wall_long")
+
+[node name="Collision" type="CollisionShape3D" parent="BackWall" unique_id=1350835472]
+shape = SubResource("Shape_wall_long")
+
+[node name="FrontWall" type="StaticBody3D" parent="." unique_id=1911754280]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4.875)
+
+[node name="Mesh" type="MeshInstance3D" parent="FrontWall" unique_id=1880970461]
+visible = false
+mesh = SubResource("Mesh_wall_long")
+
+[node name="Collision" type="CollisionShape3D" parent="FrontWall" unique_id=349867552]
+shape = SubResource("Shape_wall_long")
+
+[node name="LeftWall" type="StaticBody3D" parent="." unique_id=1207237506]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.875, 2, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="LeftWall" unique_id=809432995]
+visible = false
+mesh = SubResource("Mesh_wall_short")
+
+[node name="Collision" type="CollisionShape3D" parent="LeftWall" unique_id=1444322702]
+shape = SubResource("Shape_wall_short")
+
+[node name="RightWall" type="StaticBody3D" parent="." unique_id=1103693262]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.875, 2, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="RightWall" unique_id=1190709988]
+visible = false
+mesh = SubResource("Mesh_wall_short")
+
+[node name="Collision" type="CollisionShape3D" parent="RightWall" unique_id=1561263313]
+shape = SubResource("Shape_wall_short")
+
+[node name="DeformedBackWall" type="CSGCombiner3D" parent="." unique_id=638145261]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -4.875)
+
+[node name="Hull" type="CSGBox3D" parent="DeformedBackWall" unique_id=832760765]
+size = Vector3(14, 4, 0.25)
+material = SubResource("Material_hull")
+
+[node name="RecessLeft" type="CSGBox3D" parent="DeformedBackWall" unique_id=1813506336]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.25, 0.55, 0.09)
+operation = 2
+size = Vector3(4.7, 1.5, 0.17)
+material = SubResource("Material_hull")
+
+[node name="RecessRight" type="CSGBox3D" parent="DeformedBackWall" unique_id=2056164746]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.15, -0.45, 0.08)
+operation = 2
+size = Vector3(5.1, 1.3, 0.19)
+material = SubResource("Material_hull")
+
+[node name="RecessSlot" type="CSGBox3D" parent="DeformedBackWall" unique_id=822117208]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 0.09)
+operation = 2
+size = Vector3(1.1, 0.38, 0.18)
+material = SubResource("Material_hull")
+
+[node name="DeformedFrontWall" type="CSGCombiner3D" parent="." unique_id=80918203]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4.875)
+
+[node name="Hull" type="CSGBox3D" parent="DeformedFrontWall" unique_id=433436317]
+size = Vector3(14, 4, 0.25)
+material = SubResource("Material_hull")
+
+[node name="RecessCenter" type="CSGBox3D" parent="DeformedFrontWall" unique_id=1327469496]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -0.09)
+operation = 2
+size = Vector3(6.8, 1.7, 0.18)
+material = SubResource("Material_hull")
+
+[node name="RecessLeft" type="CSGBox3D" parent="DeformedFrontWall" unique_id=558071492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.9, -0.75, -0.08)
+operation = 2
+size = Vector3(2.2, 0.8, 0.19)
+material = SubResource("Material_hull")
+
+[node name="RecessRight" type="CSGBox3D" parent="DeformedFrontWall" unique_id=491648702]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.9, 1.1, -0.09)
+operation = 2
+size = Vector3(2.2, 0.65, 0.18)
+material = SubResource("Material_hull")
+
+[node name="DeformedLeftWall" type="CSGCombiner3D" parent="." unique_id=1323847099]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.875, 2, 0)
+
+[node name="Hull" type="CSGBox3D" parent="DeformedLeftWall" unique_id=177005586]
+size = Vector3(0.25, 4, 10)
+material = SubResource("Material_hull")
+
+[node name="RecessNear" type="CSGBox3D" parent="DeformedLeftWall" unique_id=2066621249]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.09, -0.35, 2.7)
+operation = 2
+size = Vector3(0.18, 1.25, 3.7)
+material = SubResource("Material_hull")
+
+[node name="RecessFar" type="CSGBox3D" parent="DeformedLeftWall" unique_id=1683287778]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.8, -2.65)
+operation = 2
+size = Vector3(0.19, 1.55, 3.2)
+material = SubResource("Material_hull")
+
+[node name="DeformedRightWall" type="CSGCombiner3D" parent="." unique_id=584490302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.875, 2, 0)
+
+[node name="Hull" type="CSGBox3D" parent="DeformedRightWall" unique_id=554641759]
+size = Vector3(0.25, 4, 10)
+material = SubResource("Material_hull")
+
+[node name="RecessNear" type="CSGBox3D" parent="DeformedRightWall" unique_id=1435583055]
+transform = Transform3D(0.97633797, 0, 0, 0, 1, 0, 0, 0, 1, -0.09000015, -0.35000002, 2.7)
+operation = 2
+size = Vector3(0.18, 1.25, 3.7)
+material = SubResource("Material_hull")
+
+[node name="RecessFar" type="CSGBox3D" parent="DeformedRightWall" unique_id=422830149]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.8, -2.65)
+operation = 2
+size = Vector3(0.19, 1.55, 3.2)
+material = SubResource("Material_hull")
+
+[node name="CeilingLight" type="MeshInstance3D" parent="." unique_id=2123327492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.72, 0)
+mesh = SubResource("Mesh_light_panel")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=70001981]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 2.5)
+script = ExtResource("1_player")
+
+[node name="Collision" type="CollisionShape3D" parent="Player" unique_id=867219652]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("Shape_player")
+
+[node name="Head" type="Node3D" parent="Player" unique_id=1569430246]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Player/Head" unique_id=1139034848]
+current = true
+
+[node name="Spider" type="CharacterBody3D" parent="." unique_id=616287522]
+process_mode = 4
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.15, -14)
+script = ExtResource("6_spider")
+target_path = NodePath("../Player")
+
+[node name="Interface" type="CanvasLayer" parent="." unique_id=28612002]
+
+[node name="Instructions" type="Label" parent="Interface" unique_id=1526210287]
+offset_left = 24.0
+offset_top = 22.0
+theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "Teclado: WASD + mouse   |   Mando Xbox: sticks izquierdo y derecho   |   Esc: liberar cursor"
