@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://capsule_space.gd" id="1_capsule"]
+
+[sub_resource type="Environment" id="Environment_capsule"]
+background_mode = 1
+background_color = Color(0.0015, 0.0025, 0.006, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.14, 0.19, 0.27, 1)
+ambient_light_energy = 0.68
+reflected_light_source = 2
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.46
+
+[node name="CapsuleSpace" type="Node3D"]
+script = ExtResource("1_capsule")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_capsule")
+
+[node name="Space" type="Node3D" parent="."]
+
+[node name="ShipPivot" type="Node3D" parent="."]
+
+[node name="Interior" type="Node3D" parent="ShipPivot"]
+
+[node name="Explorer" type="Node3D" parent="ShipPivot"]
+
+[node name="Camera3D" type="Camera3D" parent="ShipPivot/Explorer"]
+transform = Transform3D(1, 0, 0, 0, 0.9998, 0.0199987, 0, -0.0199987, 0.9998, 0, 2.25, 4.25)
+current = true
+fov = 78.0
+near = 0.05
+far = 220.0

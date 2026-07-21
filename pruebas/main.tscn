@@ -20,8 +20,9 @@ glow_intensity = 0.6
 [sub_resource type="StandardMaterial3D" id="Material_floor"]
 albedo_color = Color(0.12, 0.15, 0.21, 1)
 albedo_texture = ExtResource("2_floor_albedo")
-metallic = 0.15
-roughness = 0.7
+metallic = 0.19
+metallic_specular = 1.0
+roughness = 0.89
 roughness_texture = ExtResource("4_floor_arm")
 roughness_texture_channel = 1
 normal_enabled = true
@@ -79,14 +80,14 @@ script = ExtResource("5_arena")
 environment = SubResource("Environment_room")
 
 [node name="KeyLight" type="OmniLight3D" parent="." unique_id=214366173]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.60739, 3.45, 0)
 light_color = Color(0.72, 0.85, 1, 1)
 light_energy = 4.0
 shadow_enabled = true
 omni_range = 11.0
 
 [node name="WarmLight" type="OmniLight3D" parent="." unique_id=878999347]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 2.2, -3.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.20025253, 2.2, -3.5)
 light_color = Color(1, 0.52, 0.24, 1)
 light_energy = 2.0
 omni_range = 6.0
@@ -94,6 +95,7 @@ omni_range = 6.0
 [node name="Floor" type="StaticBody3D" parent="." unique_id=220965279]
 
 [node name="Mesh" type="MeshInstance3D" parent="Floor" unique_id=1018293188]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.031468153, -0.30609655, 0.026180744)
 mesh = SubResource("Mesh_floor")
 
 [node name="Collision" type="CollisionShape3D" parent="Floor" unique_id=1803026076]
@@ -228,7 +230,7 @@ size = Vector3(0.19, 1.55, 3.2)
 material = SubResource("Material_hull")
 
 [node name="CeilingLight" type="MeshInstance3D" parent="." unique_id=2123327492]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.72, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.666561, 0)
 mesh = SubResource("Mesh_light_panel")
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=70001981]
@@ -246,9 +248,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 current = true
 
 [node name="Spider" type="CharacterBody3D" parent="." unique_id=616287522]
-process_mode = 4
-visible = false
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.15, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, -8)
 script = ExtResource("6_spider")
 target_path = NodePath("../Player")
 
