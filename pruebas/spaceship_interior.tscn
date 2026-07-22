@@ -1,0 +1,973 @@
+[gd_scene format=3 uid="uid://u4cuc0pjjfml"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_player"]
+[ext_resource type="Script" path="res://automatic_lab_door.gd" id="2_lab_door"]
+[ext_resource type="PackedScene" path="res://modelos_base/Meshy_AI_Game_ready_modular_ce_0721015720_texture.glb" id="3_central_console"]
+[ext_resource type="PackedScene" path="res://modelos_base/Meshy_AI_Game_ready_modular_si_0721015741_texture.glb" id="4_side_console"]
+[ext_resource type="Script" path="res://moving_dense_fog.gd" id="5_moving_fog"]
+
+[sub_resource type="Environment" id="Environment_ship"]
+background_mode = 1
+background_color = Color(0.006, 0.009, 0.016, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.2, 0.3, 0.48, 1)
+ambient_light_energy = 0.32
+tonemap_mode = 2
+ssao_enabled = true
+ssao_radius = 2.2
+ssil_enabled = true
+sdfgi_enabled = true
+glow_enabled = true
+glow_intensity = 0.72
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+volumetric_fog_albedo = Color(0.28, 0.4, 0.6, 1)
+volumetric_fog_length = 24.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.025, 0.032, 0.043, 1)
+metallic = 0.42
+roughness = 0.72
+
+[sub_resource type="StandardMaterial3D" id="Mat_hull"]
+albedo_color = Color(0.055, 0.07, 0.095, 1)
+metallic = 0.78
+roughness = 0.34
+
+[sub_resource type="StandardMaterial3D" id="Mat_panel"]
+albedo_color = Color(0.13, 0.17, 0.22, 1)
+metallic = 0.62
+roughness = 0.48
+
+[sub_resource type="StandardMaterial3D" id="Mat_glass"]
+transparency = 1
+albedo_color = Color(0.08, 0.25, 0.38, 0.32)
+metallic = 0.15
+roughness = 0.08
+
+[sub_resource type="StandardMaterial3D" id="Mat_cyan"]
+albedo_color = Color(0.04, 0.5, 0.86, 1)
+emission_enabled = true
+emission = Color(0.02, 0.45, 1, 1)
+emission_energy_multiplier = 4.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_door"]
+albedo_color = Color(0.16, 0.2, 0.25, 1)
+metallic = 0.72
+roughness = 0.28
+
+[sub_resource type="StandardMaterial3D" id="Mat_warm"]
+albedo_color = Color(0.82, 0.36, 0.08, 1)
+emission_enabled = true
+emission = Color(1, 0.22, 0.025, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_airlock_trim"]
+albedo_color = Color(0.055, 0.18, 0.25, 1)
+metallic = 0.48
+roughness = 0.3
+emission_enabled = true
+emission = Color(0.025, 0.38, 0.62, 1)
+emission_energy_multiplier = 1.65
+
+[sub_resource type="CapsuleShape3D" id="Shape_player"]
+radius = 0.35
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_lab_white"]
+albedo_color = Color(0.88, 0.93, 1, 1)
+metallic = 0.08
+roughness = 0.24
+
+[sub_resource type="StandardMaterial3D" id="Mat_screen_green"]
+albedo_color = Color(0.02, 0.32, 0.2, 1)
+emission_enabled = true
+emission = Color(0.01, 0.85, 0.42, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_indicator_red"]
+albedo_color = Color(0.48, 0.025, 0.018, 1)
+emission_enabled = true
+emission = Color(1, 0.015, 0.008, 1)
+emission_energy_multiplier = 4.5
+
+[sub_resource type="BoxShape3D" id="Shape_lab_trigger"]
+size = Vector3(5.2, 3.4, 4.2)
+
+[sub_resource type="BoxShape3D" id="Shape_lab_presence"]
+size = Vector3(16.2, 3.4, 10.6)
+
+[sub_resource type="BoxShape3D" id="Shape_side_door_trigger"]
+size = Vector3(3.6, 3.4, 5.1)
+
+[sub_resource type="BoxShape3D" id="Shape_central_console"]
+size = Vector3(4.8, 0.85, 1.75)
+
+[sub_resource type="BoxShape3D" id="Shape_side_console"]
+size = Vector3(1.85, 0.7, 2.95)
+
+[sub_resource type="FogMaterial" id="FogMaterial_dense"]
+density = 1.15
+albedo = Color(0.55, 0.68, 0.82, 1)
+emission = Color(0.008, 0.018, 0.035, 1)
+edge_fade = 0.48
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleMaterial_dense_fog"]
+emission_shape = 3
+emission_box_extents = Vector3(2.8, 1.25, 3.2)
+direction = Vector3(0.12, 0.28, 0.08)
+spread = 180.0
+gravity = Vector3(0, 0.035, 0)
+initial_velocity_min = 0.035
+initial_velocity_max = 0.18
+scale_min = 0.65
+scale_max = 2.2
+color = Color(0.72, 0.82, 0.94, 0.22)
+
+[sub_resource type="StandardMaterial3D" id="Mat_dense_fog_particle"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.74, 0.84, 0.95, 0.2)
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="Mesh_dense_fog_particle"]
+material = SubResource("Mat_dense_fog_particle")
+size = Vector2(0.32, 0.32)
+
+[node name="SpaceshipInterior" type="Node3D" unique_id=151873493]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1102753510]
+environment = SubResource("Environment_ship")
+
+[node name="MovingDenseFog" type="Node3D" parent="."]
+position = Vector3(0, 1.25, -6)
+script = ExtResource("5_moving_fog")
+
+[node name="FogVolume" type="FogVolume" parent="MovingDenseFog"]
+material = SubResource("FogMaterial_dense")
+size = Vector3(5.8, 2.5, 6.5)
+
+[node name="Particles" type="GPUParticles3D" parent="MovingDenseFog"]
+amount = 900
+lifetime = 5.5
+preprocess = 5.5
+randomness = 0.82
+visibility_aabb = AABB(-4, -2, -4, 8, 4, 8)
+process_material = SubResource("ParticleMaterial_dense_fog")
+draw_pass_1 = SubResource("Mesh_dense_fog_particle")
+
+[node name="PreviewCamera" type="Camera3D" parent="." unique_id=1838632550]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 2.05, -2.5)
+far = 80.0
+
+[node name="Player" type="CharacterBody3D" parent="."]
+position = Vector3(0, 1.1, -5.5)
+script = ExtResource("1_player")
+
+[node name="Collision" type="CollisionShape3D" parent="Player"]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("Shape_player")
+
+[node name="Head" type="Node3D" parent="Player"]
+position = Vector3(0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Player/Head"]
+current = true
+far = 80.0
+
+[node name="Interface" type="CanvasLayer" parent="."]
+
+[node name="Instructions" type="Label" parent="Interface"]
+offset_left = 24.0
+offset_top = 22.0
+theme_override_colors/font_color = Color(0.78, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "WASD + mouse   |   Mando Xbox: sticks   |   Esc: liberar cursor"
+
+[node name="ShipStructure" type="Node3D" parent="." unique_id=1588526678]
+
+[node name="Deck" type="CSGBox3D" parent="ShipStructure" unique_id=1336191474]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
+use_collision = true
+size = Vector3(12, 0.3, 32)
+material = SubResource("Mat_floor")
+
+[node name="Ceiling" type="CSGBox3D" parent="ShipStructure" unique_id=1034458464]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.1, 0)
+size = Vector3(12, 0.22, 32)
+material = SubResource("Mat_hull")
+
+[node name="PortHull" type="CSGBox3D" parent="ShipStructure" unique_id=1992255879]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 2, 0)
+use_collision = true
+size = Vector3(0.3, 4, 32)
+material = SubResource("Mat_hull")
+
+[node name="StarboardHull" type="CSGBox3D" parent="ShipStructure" unique_id=1824713949]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 2, 0)
+use_collision = true
+size = Vector3(0.3, 4, 32)
+material = SubResource("Mat_hull")
+
+[node name="CeilingSpine" type="CSGBox3D" parent="ShipStructure" unique_id=259032118]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8, 0)
+size = Vector3(1.15, 0.38, 31.5)
+material = SubResource("Mat_panel")
+
+[node name="Cockpit" type="Node3D" parent="." unique_id=1494153150]
+
+[node name="ForwardWindow" type="CSGBox3D" parent="Cockpit" unique_id=940202721]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, -15.82)
+size = Vector3(7.4, 2.15, 0.08)
+material = SubResource("Mat_glass")
+
+[node name="WindowLowerFrame" type="CSGBox3D" parent="Cockpit" unique_id=889172995]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.08, -15.72)
+size = Vector3(8.4, 0.28, 0.38)
+material = SubResource("Mat_panel")
+
+[node name="WindowUpperFrame" type="CSGBox3D" parent="Cockpit" unique_id=164219993]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.44, -15.72)
+size = Vector3(8.4, 0.28, 0.38)
+material = SubResource("Mat_panel")
+
+[node name="ForwardPortPillar" type="CSGBox3D" parent="Cockpit" unique_id=563334252]
+transform = Transform3D(0.9702957, 0, -0.2419219, 0, 1, 0, 0.2419219, 0, 0.9702957, -4.75, 2, -14.95)
+size = Vector3(2.4, 4, 0.38)
+material = SubResource("Mat_hull")
+
+[node name="ForwardStarboardPillar" type="CSGBox3D" parent="Cockpit" unique_id=957016615]
+transform = Transform3D(0.9702957, 0, 0.2419219, 0, 1, 0, -0.2419219, 0, 0.9702957, 4.75, 2, -14.95)
+size = Vector3(2.4, 4, 0.38)
+material = SubResource("Mat_hull")
+
+[node name="PortObservationWindow" type="CSGBox3D" parent="Cockpit" unique_id=945061789]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.84, 2.35, -11.8)
+size = Vector3(0.08, 1.35, 4.6)
+material = SubResource("Mat_glass")
+
+[node name="StarboardObservationWindow" type="CSGBox3D" parent="Cockpit" unique_id=2012398117]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.84, 2.35, -11.8)
+size = Vector3(0.08, 1.35, 4.6)
+material = SubResource("Mat_glass")
+
+[node name="CockpitArchLeft" type="CSGBox3D" parent="Cockpit" unique_id=1191076140]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 2, -8.2)
+size = Vector3(0.32, 4, 0.5)
+material = SubResource("Mat_panel")
+
+[node name="CockpitArchRight" type="CSGBox3D" parent="Cockpit" unique_id=809595059]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4, 2, -8.2)
+size = Vector3(0.32, 4, 0.5)
+material = SubResource("Mat_panel")
+
+[node name="CockpitArchTop" type="CSGBox3D" parent="Cockpit" unique_id=604077877]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.55, -8.2)
+size = Vector3(7.1, 0.32, 0.5)
+material = SubResource("Mat_panel")
+
+[node name="CockpitLightPanel" type="CSGBox3D" parent="Cockpit" unique_id=324823322]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9, -12)
+size = Vector3(5.8, 0.06, 1.25)
+material = SubResource("Mat_cyan")
+
+[node name="CockpitAreaLight" type="AreaLight3D" parent="Cockpit" unique_id=1237849586]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 3.72, -12)
+light_color = Color(0.56, 0.78, 1, 1)
+light_energy = 4.2
+light_size = 1.2
+shadow_enabled = true
+area_range = 9.0
+area_size = Vector2(5.8, 1.25)
+
+[node name="InstrumentPanels" type="Node3D" parent="Cockpit"]
+
+[node name="CentralConsole" type="StaticBody3D" parent="Cockpit/InstrumentPanels"]
+position = Vector3(0, 0.72, -13.2)
+
+[node name="MeshyModel" parent="Cockpit/InstrumentPanels/CentralConsole" instance=ExtResource("3_central_console")]
+scale = Vector3(2.5, 1.3, 1.4)
+
+[node name="Collision" type="CollisionShape3D" parent="Cockpit/InstrumentPanels/CentralConsole"]
+position = Vector3(0, 0, 0)
+shape = SubResource("Shape_central_console")
+
+[node name="LeftControlWing" type="StaticBody3D" parent="Cockpit/InstrumentPanels"]
+position = Vector3(-4.45, 0.78, -12.2)
+rotation_degrees = Vector3(0, 8, -3)
+
+[node name="MeshyModel" parent="Cockpit/InstrumentPanels/LeftControlWing" instance=ExtResource("4_side_console")]
+scale = Vector3(1.65, 0.85, 1.5)
+
+[node name="Collision" type="CollisionShape3D" parent="Cockpit/InstrumentPanels/LeftControlWing"]
+shape = SubResource("Shape_side_console")
+
+[node name="RightControlWing" type="StaticBody3D" parent="Cockpit/InstrumentPanels"]
+position = Vector3(4.45, 0.78, -12.2)
+rotation_degrees = Vector3(0, -8, 3)
+
+[node name="MeshyModel" parent="Cockpit/InstrumentPanels/RightControlWing" instance=ExtResource("4_side_console")]
+scale = Vector3(-1.65, 0.85, 1.5)
+
+[node name="Collision" type="CollisionShape3D" parent="Cockpit/InstrumentPanels/RightControlWing"]
+shape = SubResource("Shape_side_console")
+
+[node name="PortStatusLights" type="Node3D" parent="Cockpit/InstrumentPanels"]
+[node name="Green" type="CSGBox3D" parent="Cockpit/InstrumentPanels/PortStatusLights"]
+position = Vector3(-5.72, 2.85, -10.4)
+size = Vector3(0.08, 0.22, 0.45)
+material = SubResource("Mat_screen_green")
+[node name="Blue" type="CSGBox3D" parent="Cockpit/InstrumentPanels/PortStatusLights"]
+position = Vector3(-5.72, 2.48, -10.4)
+size = Vector3(0.08, 0.22, 0.45)
+material = SubResource("Mat_cyan")
+[node name="Amber" type="CSGBox3D" parent="Cockpit/InstrumentPanels/PortStatusLights"]
+position = Vector3(-5.72, 2.11, -10.4)
+size = Vector3(0.08, 0.22, 0.45)
+material = SubResource("Mat_warm")
+
+[node name="StarboardStatusLights" type="Node3D" parent="Cockpit/InstrumentPanels"]
+[node name="Blue" type="CSGBox3D" parent="Cockpit/InstrumentPanels/StarboardStatusLights"]
+position = Vector3(5.72, 2.85, -10.4)
+size = Vector3(0.08, 0.22, 0.45)
+material = SubResource("Mat_cyan")
+[node name="Green" type="CSGBox3D" parent="Cockpit/InstrumentPanels/StarboardStatusLights"]
+position = Vector3(5.72, 2.48, -10.4)
+size = Vector3(0.08, 0.22, 0.45)
+material = SubResource("Mat_screen_green")
+[node name="Red" type="CSGBox3D" parent="Cockpit/InstrumentPanels/StarboardStatusLights"]
+position = Vector3(5.72, 2.11, -10.4)
+size = Vector3(0.08, 0.22, 0.45)
+material = SubResource("Mat_indicator_red")
+
+[node name="CockpitFillLightPort" type="AreaLight3D" parent="Cockpit/InstrumentPanels"]
+position = Vector3(-3.2, 3.45, -11.5)
+rotation_degrees = Vector3(-90, 0, 0)
+light_color = Color(0.65, 0.82, 1, 1)
+light_energy = 2.3
+light_size = 0.8
+area_size = Vector2(2.4, 1.0)
+area_range = 5.5
+
+[node name="CockpitFillLightStarboard" type="AreaLight3D" parent="Cockpit/InstrumentPanels"]
+position = Vector3(3.2, 3.45, -11.5)
+rotation_degrees = Vector3(-90, 0, 0)
+light_color = Color(0.65, 0.82, 1, 1)
+light_energy = 2.3
+light_size = 0.8
+area_size = Vector2(2.4, 1.0)
+area_range = 5.5
+
+[node name="CentralCorridor" type="Node3D" parent="." unique_id=1183582094]
+
+[node name="PortInnerWall" type="CSGPolygon3D" parent="CentralCorridor" unique_id=676407964]
+position = Vector3(0, 0, 10.8)
+polygon = PackedVector2Array(-2.79, 0, -1.45, 0, -1.45, 1.12, -2.15, 2.1, -2.15, 2.48, -1.55, 3.115, -1.55, 4.05, -2.79, 4.05)
+depth = 12.9
+use_collision = true
+material = SubResource("Mat_panel")
+
+[node name="StarboardInnerWall" type="CSGPolygon3D" parent="CentralCorridor" unique_id=575739480]
+position = Vector3(0, 0, 10.8)
+polygon = PackedVector2Array(2.79, 0, 2.79, 4.05, 1.55, 4.05, 1.55, 3.115, 2.15, 2.48, 2.15, 2.1, 1.45, 1.12, 1.45, 0)
+depth = 12.9
+use_collision = true
+material = SubResource("Mat_panel")
+
+[node name="ProfileCeiling" type="CSGBox3D" parent="CentralCorridor"]
+position = Vector3(0, 3.115, 4.35)
+use_collision = true
+size = Vector3(3.1, 0.18, 12.9)
+material = SubResource("Mat_hull")
+
+[node name="FloorLightPort" type="CSGBox3D" parent="CentralCorridor" unique_id=1697183778]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.18, 0.025, 2)
+size = Vector3(0.07, 0.03, 19.5)
+material = SubResource("Mat_cyan")
+
+[node name="FloorLightStarboard" type="CSGBox3D" parent="CentralCorridor" unique_id=997523178]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.18, 0.025, 2)
+size = Vector3(0.07, 0.03, 19.5)
+material = SubResource("Mat_cyan")
+
+[node name="DoorFrames" type="Node3D" parent="CentralCorridor" unique_id=2071674358]
+
+[node name="FrameA_Left" type="CSGBox3D" parent="CentralCorridor/DoorFrames" unique_id=660349876]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.55, 1.7, -7.8)
+size = Vector3(0.35, 3.4, 0.42)
+material = SubResource("Mat_hull")
+
+[node name="FrameA_Right" type="CSGBox3D" parent="CentralCorridor/DoorFrames" unique_id=1998673766]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.55, 1.7, -7.8)
+size = Vector3(0.35, 3.4, 0.42)
+material = SubResource("Mat_hull")
+
+[node name="FrameA_Top" type="CSGBox3D" parent="CentralCorridor/DoorFrames" unique_id=30089093]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.35, -7.8)
+size = Vector3(5.45, 0.28, 0.42)
+material = SubResource("Mat_hull")
+
+[node name="LaboratoryAirlockFrame" type="Node3D" parent="CentralCorridor/DoorFrames"]
+
+[node name="OuterFrame" type="Node3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame"]
+
+[node name="PortLowerFramePrism" type="CSGPolygon3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/OuterFrame"]
+position = Vector3(0, 0, 10.5)
+polygon = PackedVector2Array(-2.75, 0, -1.45, 0, -1.45, 1.12, -2.15, 2.1, -2.15, 2.55, -2.75, 2.55)
+depth = 0.62
+use_collision = true
+material = SubResource("Mat_hull")
+
+[node name="StarboardLowerFramePrism" type="CSGPolygon3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/OuterFrame"]
+position = Vector3(0, 0, 10.5)
+polygon = PackedVector2Array(2.75, 0, 2.75, 2.55, 2.15, 2.55, 2.15, 2.1, 1.45, 1.12, 1.45, 0)
+depth = 0.62
+use_collision = true
+material = SubResource("Mat_hull")
+
+[node name="PortShoulder" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/OuterFrame"]
+position = Vector3(-2.08, 2.93, 10.5)
+rotation_degrees = Vector3(0, 0, -42)
+size = Vector3(0.42, 1.2, 0.62)
+material = SubResource("Mat_hull")
+
+[node name="StarboardShoulder" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/OuterFrame"]
+position = Vector3(2.08, 2.93, 10.5)
+rotation_degrees = Vector3(0, 0, 42)
+size = Vector3(0.42, 1.2, 0.62)
+material = SubResource("Mat_hull")
+
+[node name="UpperBeam" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/OuterFrame"]
+position = Vector3(0, 3.42, 10.5)
+size = Vector3(3.8, 0.42, 0.62)
+material = SubResource("Mat_hull")
+
+[node name="InnerArmor" type="Node3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame"]
+
+[node name="PortLowerFrameFace" type="CSGPolygon3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/InnerArmor"]
+position = Vector3(0, 0, 10.16)
+polygon = PackedVector2Array(-2.58, 0.04, -1.49, 0.04, -1.49, 1.1, -2.12, 2.04, -2.12, 2.46, -2.58, 2.46)
+depth = 0.12
+material = SubResource("Mat_panel")
+
+[node name="StarboardLowerFrameFace" type="CSGPolygon3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/InnerArmor"]
+position = Vector3(0, 0, 10.16)
+polygon = PackedVector2Array(2.58, 0.04, 2.58, 2.46, 2.12, 2.46, 2.12, 2.04, 1.49, 1.1, 1.49, 0.04)
+depth = 0.12
+material = SubResource("Mat_panel")
+
+[node name="PortShoulderPlate" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/InnerArmor"]
+position = Vector3(-1.91, 2.82, 10.16)
+rotation_degrees = Vector3(0, 0, -42)
+size = Vector3(0.18, 1.0, 0.12)
+material = SubResource("Mat_panel")
+
+[node name="StarboardShoulderPlate" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/InnerArmor"]
+position = Vector3(1.91, 2.82, 10.16)
+rotation_degrees = Vector3(0, 0, 42)
+size = Vector3(0.18, 1.0, 0.12)
+material = SubResource("Mat_panel")
+
+[node name="TopPlate" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/InnerArmor"]
+position = Vector3(0, 3.22, 10.16)
+size = Vector3(3.48, 0.18, 0.12)
+material = SubResource("Mat_panel")
+
+[node name="GuidanceLights" type="Node3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame"]
+
+[node name="PortVertical" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(-2.155, 2.07, 10.085)
+size = Vector3(0.055, 1.38, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardVertical" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(2.155, 2.07, 10.085)
+size = Vector3(0.055, 1.38, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="PortWaistGuidance" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(-1.79, 1.6, 10.085)
+rotation_degrees = Vector3(0, 0, 37)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardWaistGuidance" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(1.79, 1.6, 10.085)
+rotation_degrees = Vector3(0, 0, -37)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="PortLowerGuidance" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(-1.43, 0.64, 10.085)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardLowerGuidance" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(1.43, 0.64, 10.085)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="PortDiagonal" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(-1.81, 2.78, 10.085)
+rotation_degrees = Vector3(0, 0, -42)
+size = Vector3(0.055, 0.9, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardDiagonal" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(1.81, 2.78, 10.085)
+rotation_degrees = Vector3(0, 0, 42)
+size = Vector3(0.055, 0.9, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="TopLight" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/GuidanceLights"]
+position = Vector3(0, 3.115, 10.085)
+size = Vector3(3.1, 0.055, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StatusModule" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame"]
+position = Vector3(0, 3.43, 10.14)
+size = Vector3(1.15, 0.27, 0.16)
+material = SubResource("Mat_panel")
+
+[node name="StatusLightLeft" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/StatusModule"]
+position = Vector3(-0.31, 0, -0.09)
+size = Vector3(0.13, 0.045, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StatusLightCenter" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/StatusModule"]
+position = Vector3(0, 0, -0.09)
+size = Vector3(0.13, 0.045, 0.025)
+material = SubResource("Mat_warm")
+
+[node name="StatusLightRight" type="CSGBox3D" parent="CentralCorridor/DoorFrames/LaboratoryAirlockFrame/StatusModule"]
+position = Vector3(0.31, 0, -0.09)
+size = Vector3(0.13, 0.045, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="CorridorLights" type="Node3D" parent="CentralCorridor" unique_id=793891663]
+
+[node name="AreaLightA" type="AreaLight3D" parent="CentralCorridor/CorridorLights" unique_id=808321960]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.98, -5)
+light_color = Color(0.45, 0.68, 1, 1)
+light_energy = 2.0
+light_size = 0.8
+shadow_enabled = true
+area_range = 5.5
+area_size = Vector2(3.2, 0.75)
+
+[node name="AreaLightB" type="AreaLight3D" parent="CentralCorridor/CorridorLights" unique_id=793278308]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.98, 1)
+light_color = Color(0.45, 0.68, 1, 1)
+light_energy = 2.0
+light_size = 0.8
+shadow_enabled = true
+area_range = 5.5
+area_size = Vector2(3.2, 0.75)
+
+[node name="AreaLightC" type="AreaLight3D" parent="CentralCorridor/CorridorLights" unique_id=1878813269]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.98, 7)
+light_color = Color(0.45, 0.68, 1, 1)
+light_energy = 2.0
+light_size = 0.8
+shadow_enabled = true
+area_range = 5.5
+area_size = Vector2(3.2, 0.75)
+
+[node name="CrewQuarters" type="Node3D" parent="." unique_id=1340219473]
+
+[node name="PortCabinDividerA" type="CSGBox3D" parent="CrewQuarters" unique_id=35788051]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35, 2, 2.3)
+size = Vector3(3.1, 4, 0.2)
+material = SubResource("Mat_hull")
+
+[node name="PortCabinDividerB" type="CSGBox3D" parent="CrewQuarters" unique_id=1359421891]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35, 2, 6.4)
+size = Vector3(3.1, 4, 0.2)
+material = SubResource("Mat_hull")
+
+[node name="PortCabinDividerC" type="CSGBox3D" parent="CrewQuarters" unique_id=2050661678]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35, 2, 10.4)
+size = Vector3(3.1, 4, 0.2)
+material = SubResource("Mat_hull")
+
+[node name="StarboardCabinDividerA" type="CSGBox3D" parent="CrewQuarters" unique_id=1021757392]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.35, 2, 2.3)
+size = Vector3(3.1, 4, 0.2)
+material = SubResource("Mat_hull")
+
+[node name="StarboardCabinDividerB" type="CSGBox3D" parent="CrewQuarters" unique_id=148254381]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.35, 2, 6.4)
+size = Vector3(3.1, 4, 0.2)
+material = SubResource("Mat_hull")
+
+[node name="StarboardCabinDividerC" type="CSGBox3D" parent="CrewQuarters" unique_id=1155294964]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.35, 2, 10.4)
+size = Vector3(3.1, 4, 0.2)
+material = SubResource("Mat_hull")
+
+[node name="PortDoorA" type="CSGBox3D" parent="CrewQuarters" unique_id=2079208875]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.58, 1.45, 4.35)
+size = Vector3(0.12, 2.75, 1.85)
+material = SubResource("Mat_door")
+
+[node name="PortDoorB" type="CSGBox3D" parent="CrewQuarters" unique_id=10126758]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.58, 1.45, 8.4)
+size = Vector3(0.12, 2.75, 1.85)
+material = SubResource("Mat_door")
+
+[node name="StarboardDoorA" type="CSGBox3D" parent="CrewQuarters" unique_id=265141287]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.58, 1.45, 4.35)
+size = Vector3(0.12, 2.75, 1.85)
+material = SubResource("Mat_door")
+
+[node name="StarboardDoorB" type="CSGBox3D" parent="CrewQuarters" unique_id=1788830856]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.58, 1.45, 8.4)
+size = Vector3(0.12, 2.75, 1.85)
+material = SubResource("Mat_door")
+
+[node name="PortCabinWindowA" type="CSGBox3D" parent="CrewQuarters" unique_id=1628974006]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 2.55, 4.35)
+size = Vector3(0.05, 0.48, 0.82)
+material = SubResource("Mat_glass")
+
+[node name="PortCabinWindowB" type="CSGBox3D" parent="CrewQuarters" unique_id=153439437]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 2.55, 8.4)
+size = Vector3(0.05, 0.48, 0.82)
+material = SubResource("Mat_glass")
+
+[node name="StarboardCabinWindowA" type="CSGBox3D" parent="CrewQuarters" unique_id=1266168172]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 2.55, 4.35)
+size = Vector3(0.05, 0.48, 0.82)
+material = SubResource("Mat_glass")
+
+[node name="StarboardCabinWindowB" type="CSGBox3D" parent="CrewQuarters" unique_id=696582896]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 2.55, 8.4)
+size = Vector3(0.05, 0.48, 0.82)
+material = SubResource("Mat_glass")
+
+[node name="CabinWarmLightA" type="AreaLight3D" parent="CrewQuarters" unique_id=243621251]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -4.2, 3.65, 4.35)
+light_color = Color(1, 0.56, 0.3, 1)
+light_energy = 1.6
+area_range = 4.0
+area_size = Vector2(2.1, 1.2)
+
+[node name="CabinWarmLightB" type="AreaLight3D" parent="CrewQuarters" unique_id=2064935740]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 4.2, 3.65, 8.4)
+light_color = Color(1, 0.56, 0.3, 1)
+light_energy = 1.6
+area_range = 4.0
+area_size = Vector2(2.1, 1.2)
+
+[node name="SupplyBay" type="Node3D" parent="." unique_id=136281613]
+script = ExtResource("2_lab_door")
+left_door_path = NodePath("SupplyDoorLeft")
+right_door_path = NodePath("SupplyDoorRight")
+trigger_path = NodePath("DoorTrigger")
+lab_presence_path = NodePath("LabPresence")
+
+[node name="DoorTrigger" type="Area3D" parent="SupplyBay"]
+position = Vector3(0, 1.7, 9.8)
+collision_layer = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SupplyBay/DoorTrigger"]
+shape = SubResource("Shape_lab_trigger")
+
+[node name="LabPresence" type="Area3D" parent="SupplyBay"]
+position = Vector3(0, 1.7, 13.15)
+collision_layer = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SupplyBay/LabPresence"]
+shape = SubResource("Shape_lab_presence")
+
+[node name="RearBulkhead" type="CSGBox3D" parent="SupplyBay" unique_id=749379683]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 21.15)
+use_collision = true
+size = Vector3(17.4, 4, 0.35)
+material = SubResource("Mat_hull")
+
+[node name="SupplyDoorLeft" type="CSGBox3D" parent="SupplyBay" unique_id=1315790347]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.12, 1.64, 10.65)
+use_collision = true
+size = Vector3(2.3, 3.28, 0.24)
+material = SubResource("Mat_door")
+
+[node name="SupplyDoorRight" type="CSGBox3D" parent="SupplyBay" unique_id=644283572]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.12, 1.64, 10.65)
+use_collision = true
+size = Vector3(2.3, 3.28, 0.24)
+material = SubResource("Mat_door")
+
+[node name="DoorCenterLight" type="CSGBox3D" parent="SupplyBay" unique_id=221318789]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.64, 10.50)
+size = Vector3(0.04, 3.0, 0.03)
+material = SubResource("Mat_warm")
+
+[node name="DoorCenterLightLab" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(0, 1.64, 10.79)
+size = Vector3(0.04, 3.0, 0.03)
+material = SubResource("Mat_airlock_trim")
+
+[node name="LaboratoryFloor" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(0, 0.015, 15.9)
+use_collision = true
+size = Vector3(16.8, 0.06, 10.5)
+material = SubResource("Mat_lab_white")
+
+[node name="LaboratoryCeiling" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(0, 3.86, 15.9)
+size = Vector3(16.8, 0.12, 10.5)
+material = SubResource("Mat_lab_white")
+
+[node name="LaboratoryPortWall" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(-8.38, 2, 15.9)
+size = Vector3(0.08, 3.75, 10.5)
+material = SubResource("Mat_lab_white")
+
+[node name="LaboratoryStarboardWallFront" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(8.38, 2, 11.58)
+size = Vector3(0.08, 3.75, 1.86)
+material = SubResource("Mat_lab_white")
+
+[node name="LaboratoryStarboardWallRear" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(8.38, 2, 19.15)
+size = Vector3(0.08, 3.75, 4.0)
+material = SubResource("Mat_lab_white")
+
+[node name="LaboratoryRearWall" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(0, 2, 21.1)
+size = Vector3(16.8, 3.75, 0.08)
+material = SubResource("Mat_lab_white")
+
+[node name="PortRackFrameA" type="CSGBox3D" parent="SupplyBay" unique_id=252320019]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.3, 2, 12.5)
+size = Vector3(0.28, 3.8, 3.2)
+material = SubResource("Mat_lab_white")
+
+[node name="PortRackFrameB" type="CSGBox3D" parent="SupplyBay" unique_id=895337671]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1, 2, 12.5)
+size = Vector3(0.28, 3.8, 3.2)
+material = SubResource("Mat_lab_white")
+
+[node name="StarboardRackFrameA" type="CSGBox3D" parent="SupplyBay" unique_id=1661521269]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1, 2, 12.5)
+size = Vector3(0.28, 3.8, 3.2)
+material = SubResource("Mat_lab_white")
+
+[node name="StarboardRackFrameB" type="CSGBox3D" parent="SupplyBay" unique_id=948315849]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.3, 2, 10.9)
+size = Vector3(0.28, 3.8, 2.0)
+material = SubResource("Mat_lab_white")
+
+[node name="SideAirlockThreshold" type="CSGBox3D" parent="SupplyBay"]
+position = Vector3(8.18, 0.025, 14.8)
+use_collision = true
+size = Vector3(0.52, 0.08, 3.0)
+material = SubResource("Mat_lab_white")
+
+[node name="SupplyAreaLight" type="AreaLight3D" parent="SupplyBay" unique_id=995159607 groups=["laboratory_lights"]]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 3.7, 13.2)
+light_color = Color(0.92, 0.97, 1, 1)
+light_energy = 5.2
+light_size = 1.0
+shadow_enabled = true
+area_range = 6.0
+area_size = Vector2(4.5, 1.2)
+
+[node name="LaboratoryAreaLightRear" type="AreaLight3D" parent="SupplyBay" groups=["laboratory_lights"]]
+position = Vector3(0, 3.68, 18.7)
+rotation_degrees = Vector3(-90, 0, 0)
+light_color = Color(0.95, 0.98, 1, 1)
+light_energy = 5.2
+light_size = 1.2
+shadow_enabled = true
+area_size = Vector2(5.5, 1.5)
+area_range = 6.0
+
+[node name="LaboratoryAreaLightCenter" type="AreaLight3D" parent="SupplyBay" groups=["laboratory_lights"]]
+position = Vector3(0, 3.68, 14.4)
+rotation_degrees = Vector3(-90, 0, 0)
+light_color = Color(0.95, 0.98, 1, 1)
+light_energy = 5.2
+light_size = 1.2
+shadow_enabled = true
+area_size = Vector2(5.5, 1.5)
+area_range = 6.0
+
+[node name="DoorWarningSpot" type="SpotLight3D" parent="SupplyBay" unique_id=1732149658]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 3.2, 10.2)
+light_color = Color(1, 0.12, 0.04, 1)
+light_energy = 3.0
+shadow_enabled = true
+spot_angle = 34.0
+
+[node name="SideAirlock" type="Node3D" parent="."]
+script = ExtResource("2_lab_door")
+left_door_path = NodePath("SideDoorForward")
+right_door_path = NodePath("SideDoorRear")
+trigger_path = NodePath("DoorTrigger")
+opening_axis = Vector3(0, 0, 1)
+controls_lab_lighting = false
+
+[node name="DoorTrigger" type="Area3D" parent="SideAirlock"]
+position = Vector3(8.0, 1.7, 14.8)
+collision_layer = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SideAirlock/DoorTrigger"]
+shape = SubResource("Shape_side_door_trigger")
+
+[node name="SideDoorForward" type="CSGBox3D" parent="SideAirlock"]
+position = Vector3(8.38, 1.64, 13.68)
+use_collision = true
+size = Vector3(0.24, 3.28, 2.3)
+material = SubResource("Mat_door")
+
+[node name="SideDoorRear" type="CSGBox3D" parent="SideAirlock"]
+position = Vector3(8.38, 1.64, 15.92)
+use_collision = true
+size = Vector3(0.24, 3.28, 2.3)
+material = SubResource("Mat_door")
+
+[node name="SideAirlockFrame" type="Node3D" parent="SideAirlock"]
+position = Vector3(8.38, 0, 14.8)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="PortLowerFramePrism" type="CSGPolygon3D" parent="SideAirlock/SideAirlockFrame"]
+polygon = PackedVector2Array(-2.75, 0, -1.45, 0, -1.45, 1.12, -2.15, 2.1, -2.15, 2.55, -2.75, 2.55)
+depth = 0.62
+use_collision = true
+material = SubResource("Mat_hull")
+
+[node name="StarboardLowerFramePrism" type="CSGPolygon3D" parent="SideAirlock/SideAirlockFrame"]
+polygon = PackedVector2Array(2.75, 0, 2.75, 2.55, 2.15, 2.55, 2.15, 2.1, 1.45, 1.12, 1.45, 0)
+depth = 0.62
+use_collision = true
+material = SubResource("Mat_hull")
+
+[node name="PortShoulder" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame"]
+position = Vector3(-2.08, 2.93, 0)
+rotation_degrees = Vector3(0, 0, -42)
+size = Vector3(0.42, 1.2, 0.62)
+material = SubResource("Mat_hull")
+
+[node name="StarboardShoulder" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame"]
+position = Vector3(2.08, 2.93, 0)
+rotation_degrees = Vector3(0, 0, 42)
+size = Vector3(0.42, 1.2, 0.62)
+material = SubResource("Mat_hull")
+
+[node name="UpperBeam" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame"]
+position = Vector3(0, 3.42, 0)
+size = Vector3(3.8, 0.42, 0.62)
+material = SubResource("Mat_hull")
+
+[node name="GuidanceLights" type="Node3D" parent="SideAirlock/SideAirlockFrame"]
+
+[node name="PortVertical" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(-2.155, 2.07, -0.33)
+size = Vector3(0.055, 1.38, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardVertical" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(2.155, 2.07, -0.33)
+size = Vector3(0.055, 1.38, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="PortWaist" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(-1.79, 1.6, -0.33)
+rotation_degrees = Vector3(0, 0, 37)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardWaist" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(1.79, 1.6, -0.33)
+rotation_degrees = Vector3(0, 0, -37)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="PortLower" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(-1.43, 0.64, -0.33)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardLower" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(1.43, 0.64, -0.33)
+size = Vector3(0.055, 1.2, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="PortUpper" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(-1.81, 2.78, -0.33)
+rotation_degrees = Vector3(0, 0, -42)
+size = Vector3(0.055, 0.9, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="StarboardUpper" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(1.81, 2.78, -0.33)
+rotation_degrees = Vector3(0, 0, 42)
+size = Vector3(0.055, 0.9, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="Top" type="CSGBox3D" parent="SideAirlock/SideAirlockFrame/GuidanceLights"]
+position = Vector3(0, 3.115, -0.33)
+size = Vector3(3.1, 0.055, 0.025)
+material = SubResource("Mat_airlock_trim")
+
+[node name="SideCorridor" type="Node3D" parent="."]
+position = Vector3(8.38, 0, 14.8)
+rotation_degrees = Vector3(0, -90, 0)
+
+[node name="PortWall" type="CSGPolygon3D" parent="SideCorridor"]
+polygon = PackedVector2Array(-2.79, 0, -1.45, 0, -1.45, 1.12, -2.15, 2.1, -2.15, 2.48, -1.55, 3.115, -1.55, 4.05, -2.79, 4.05)
+depth = 7.4
+use_collision = true
+material = SubResource("Mat_panel")
+
+[node name="StarboardWall" type="CSGPolygon3D" parent="SideCorridor"]
+polygon = PackedVector2Array(2.79, 0, 2.79, 4.05, 1.55, 4.05, 1.55, 3.115, 2.15, 2.48, 2.15, 2.1, 1.45, 1.12, 1.45, 0)
+depth = 7.4
+use_collision = true
+material = SubResource("Mat_panel")
+
+[node name="Floor" type="CSGBox3D" parent="SideCorridor"]
+position = Vector3(0, -0.15, -3.7)
+use_collision = true
+size = Vector3(5.6, 0.3, 7.4)
+material = SubResource("Mat_floor")
+
+[node name="ProfileCeiling" type="CSGBox3D" parent="SideCorridor"]
+position = Vector3(0, 3.115, -3.7)
+use_collision = true
+size = Vector3(3.1, 0.18, 7.4)
+material = SubResource("Mat_hull")
+
+[node name="FloorLightPort" type="CSGBox3D" parent="SideCorridor"]
+position = Vector3(-1.18, 0.025, -3.7)
+size = Vector3(0.07, 0.03, 7.4)
+material = SubResource("Mat_cyan")
+
+[node name="FloorLightStarboard" type="CSGBox3D" parent="SideCorridor"]
+position = Vector3(1.18, 0.025, -3.7)
+size = Vector3(0.07, 0.03, 7.4)
+material = SubResource("Mat_cyan")
+
+[node name="LightA" type="AreaLight3D" parent="SideCorridor"]
+position = Vector3(0, 2.95, -2.0)
+rotation_degrees = Vector3(-90, 0, 0)
+light_color = Color(0.45, 0.68, 1, 1)
+light_energy = 2.0
+shadow_enabled = true
+area_range = 5.0
+area_size = Vector2(2.8, 0.75)
+
+[node name="LightB" type="AreaLight3D" parent="SideCorridor"]
+position = Vector3(0, 2.95, -5.5)
+rotation_degrees = Vector3(-90, 0, 0)
+light_color = Color(0.45, 0.68, 1, 1)
+light_energy = 2.0
+shadow_enabled = true
+area_range = 5.0
+area_size = Vector2(2.8, 0.75)
