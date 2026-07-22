@@ -73,8 +73,11 @@ func _build_parking(parent: Node) -> void:
 	# Dos hileras de plazas: los separadores y topes coinciden con cada vehículo.
 	for z in [-15.0, 13.0]:
 		for x in [-11.0, -5.0, 1.0, 7.0, 13.0, 19.0]:
-			_spawn_painted_marking(parent, "BayDivider", Vector3(x, 0.104, z), Vector2(0.1, 4.8), line_material)
-			_spawn_visual_box(parent, "WheelStop", Vector3(x + 2.75, 0.22, z), Vector3(0.2, 0.2, 1.65), concrete_material)
+			_spawn_painted_marking(parent, "BayDivider", Vector3(x, 0.104, z), Vector2(0.1, 5.5), line_material)
+		_spawn_painted_marking(parent, "BayBoundaryFront", Vector3(4.0, 0.104, z - 2.75), Vector2(30.0, 0.1), line_material)
+		_spawn_painted_marking(parent, "BayBoundaryBack", Vector3(4.0, 0.104, z + 2.75), Vector2(30.0, 0.1), line_material)
+		for bay_center in [-8.0, -2.0, 4.0, 10.0, 16.0]:
+			_spawn_visual_box(parent, "WheelStop", Vector3(bay_center, 0.22, z - 2.25), Vector3(4.4, 0.2, 0.2), concrete_material)
 	for x in [-16.0, 22.0]:
 		_spawn_painted_marking(parent, "DriveLaneEdge", Vector3(x, 0.104, 0), Vector2(0.14, 43), line_material)
 	_spawn_painted_marking(parent, "CenterLane", Vector3(3.0, 0.104, 0), Vector2(0.12, 18), line_material)
@@ -251,7 +254,7 @@ func _painted_line_material() -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """
 shader_type spatial;
-render_mode blend_mix, depth_prepass_alpha, cull_disabled;
+render_mode blend_mix, depth_draw_alpha_prepass, cull_disabled;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);

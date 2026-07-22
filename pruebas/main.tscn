@@ -1,11 +1,12 @@
 [gd_scene format=3 uid="uid://bxxah07gmqk8o"]
 
 [ext_resource type="Script" uid="uid://c6d054xhj7j8r" path="res://player.gd" id="1_player"]
-[ext_resource type="Texture2D" uid="uid://8dglo2hq588b" path="res://materiales_base/textures/red_sandstone_tiles_diff_2k.jpg" id="2_floor_albedo"]
-[ext_resource type="Texture2D" uid="uid://ljpj51bi5yoo" path="res://materiales_base/textures/red_sandstone_tiles_nor_gl_2k.jpg" id="3_floor_normal"]
-[ext_resource type="Texture2D" uid="uid://do3xxumkq8cl3" path="res://materiales_base/textures/red_sandstone_tiles_arm_2k.jpg" id="4_floor_arm"]
+[ext_resource type="Texture2D" path="res://materiales_base/textures/asphalt_pit_lane_diff_2k.jpg" id="2_floor_albedo"]
+[ext_resource type="Texture2D" path="res://materiales_base/textures/asphalt_pit_lane_nor_gl_2k.jpg" id="3_floor_normal"]
+[ext_resource type="Texture2D" path="res://materiales_base/textures/asphalt_pit_lane_arm_2k.jpg" id="4_floor_arm"]
 [ext_resource type="Script" uid="uid://bn7wpq4xx8ixv" path="res://arena.gd" id="5_arena"]
 [ext_resource type="Script" uid="uid://c1r203bc5562p" path="res://spider.gd" id="6_spider"]
+[ext_resource type="PackedScene" path="res://environment.tscn" id="7_environment"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
@@ -18,11 +19,10 @@ glow_enabled = true
 glow_intensity = 0.6
 
 [sub_resource type="StandardMaterial3D" id="Material_floor"]
-albedo_color = Color(0.12, 0.15, 0.21, 1)
+albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("2_floor_albedo")
-metallic = 0.19
-metallic_specular = 1.0
-roughness = 0.89
+metallic = 0.15
+roughness = 0.7
 roughness_texture = ExtResource("4_floor_arm")
 roughness_texture_channel = 1
 normal_enabled = true
@@ -31,10 +31,10 @@ uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="BoxMesh" id="Mesh_floor"]
 material = SubResource("Material_floor")
-size = Vector3(14, 0.2, 10)
+size = Vector3(50, 0.2, 50)
 
 [sub_resource type="BoxShape3D" id="Shape_floor"]
-size = Vector3(14, 0.2, 10)
+size = Vector3(50, 0.2, 50)
 
 [sub_resource type="StandardMaterial3D" id="Material_wall"]
 albedo_color = Color(0.32, 0.37, 0.47, 1)
@@ -74,20 +74,21 @@ radius = 0.35
 height = 1.8
 
 [node name="Room" type="Node3D" unique_id=706869818]
-script = ExtResource("5_arena")
+
+[node name="ParkingEnvironment" parent="." instance=ExtResource("7_environment")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=760751]
 environment = SubResource("Environment_room")
 
 [node name="KeyLight" type="OmniLight3D" parent="." unique_id=214366173]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.60739, 3.45, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
 light_color = Color(0.72, 0.85, 1, 1)
 light_energy = 4.0
 shadow_enabled = true
 omni_range = 11.0
 
 [node name="WarmLight" type="OmniLight3D" parent="." unique_id=878999347]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.20025253, 2.2, -3.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 2.2, -3.5)
 light_color = Color(1, 0.52, 0.24, 1)
 light_energy = 2.0
 omni_range = 6.0
@@ -95,13 +96,13 @@ omni_range = 6.0
 [node name="Floor" type="StaticBody3D" parent="." unique_id=220965279]
 
 [node name="Mesh" type="MeshInstance3D" parent="Floor" unique_id=1018293188]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.031468153, -0.30609655, 0.026180744)
 mesh = SubResource("Mesh_floor")
 
 [node name="Collision" type="CollisionShape3D" parent="Floor" unique_id=1803026076]
 shape = SubResource("Shape_floor")
 
 [node name="BackWall" type="StaticBody3D" parent="." unique_id=519242451]
+collision_layer = 0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -4.875)
 
 [node name="Mesh" type="MeshInstance3D" parent="BackWall" unique_id=2067641859]
@@ -112,6 +113,7 @@ mesh = SubResource("Mesh_wall_long")
 shape = SubResource("Shape_wall_long")
 
 [node name="FrontWall" type="StaticBody3D" parent="." unique_id=1911754280]
+collision_layer = 0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4.875)
 
 [node name="Mesh" type="MeshInstance3D" parent="FrontWall" unique_id=1880970461]
@@ -122,6 +124,7 @@ mesh = SubResource("Mesh_wall_long")
 shape = SubResource("Shape_wall_long")
 
 [node name="LeftWall" type="StaticBody3D" parent="." unique_id=1207237506]
+collision_layer = 0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.875, 2, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="LeftWall" unique_id=809432995]
@@ -132,6 +135,7 @@ mesh = SubResource("Mesh_wall_short")
 shape = SubResource("Shape_wall_short")
 
 [node name="RightWall" type="StaticBody3D" parent="." unique_id=1103693262]
+collision_layer = 0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.875, 2, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="RightWall" unique_id=1190709988]
@@ -142,6 +146,7 @@ mesh = SubResource("Mesh_wall_short")
 shape = SubResource("Shape_wall_short")
 
 [node name="DeformedBackWall" type="CSGCombiner3D" parent="." unique_id=638145261]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -4.875)
 
 [node name="Hull" type="CSGBox3D" parent="DeformedBackWall" unique_id=832760765]
@@ -167,6 +172,7 @@ size = Vector3(1.1, 0.38, 0.18)
 material = SubResource("Material_hull")
 
 [node name="DeformedFrontWall" type="CSGCombiner3D" parent="." unique_id=80918203]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4.875)
 
 [node name="Hull" type="CSGBox3D" parent="DeformedFrontWall" unique_id=433436317]
@@ -192,6 +198,7 @@ size = Vector3(2.2, 0.65, 0.18)
 material = SubResource("Material_hull")
 
 [node name="DeformedLeftWall" type="CSGCombiner3D" parent="." unique_id=1323847099]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.875, 2, 0)
 
 [node name="Hull" type="CSGBox3D" parent="DeformedLeftWall" unique_id=177005586]
@@ -211,6 +218,7 @@ size = Vector3(0.19, 1.55, 3.2)
 material = SubResource("Material_hull")
 
 [node name="DeformedRightWall" type="CSGCombiner3D" parent="." unique_id=584490302]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.875, 2, 0)
 
 [node name="Hull" type="CSGBox3D" parent="DeformedRightWall" unique_id=554641759]
@@ -230,7 +238,7 @@ size = Vector3(0.19, 1.55, 3.2)
 material = SubResource("Material_hull")
 
 [node name="CeilingLight" type="MeshInstance3D" parent="." unique_id=2123327492]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.666561, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.72, 0)
 mesh = SubResource("Mesh_light_panel")
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=70001981]
@@ -248,7 +256,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 current = true
 
 [node name="Spider" type="CharacterBody3D" parent="." unique_id=616287522]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, -8)
+process_mode = 4
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1.15, -14)
 script = ExtResource("6_spider")
 target_path = NodePath("../Player")
 

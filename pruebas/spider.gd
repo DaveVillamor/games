@@ -10,14 +10,10 @@ extends CharacterBody3D
 @export var attack_cooldown := 2.8
 
 const PROJECTILE_SCRIPT = preload("res://spider_projectile.gd")
-const ARACHNID_MODEL_SCENE: PackedScene = preload("res://modelos_separados/arachnid_rigged.glb")
 
 var target: Node3D
 var legs: Array[Dictionary] = []
 var skeleton_material: StandardMaterial3D
-var model_root: Node3D
-var model_leg_parts: Dictionary = {}
-var model_visual_loaded := false
 var leg_directions: Array = [
 	Vector3(0.72, 0, -0.92).normalized(),
 	Vector3(1.0, 0, -0.3).normalized(),
@@ -38,78 +34,9 @@ func _ready() -> void:
 	skeleton_material.metallic = 0.65
 	skeleton_material.roughness = 0.3
 	_add_body_collision()
-	model_visual_loaded = _build_model_visual()
-	if not model_visual_loaded:
-		_build_body()
+	_build_body()
 	_build_legs()
 	_add_fog_particles()
-
-
-func _build_model_visual() -> bool:
-	if ARACHNID_MODEL_SCENE == null:
-		return false
-	model_root = ARACHNID_MODEL_SCENE.instantiate() as Node3D
-	if model_root == null:
-		return false
-	model_root.name = "ArachnidModel"
-	model_root.position.y = -0.65
-	model_root.rotation.y = PI
-	add_child(model_root)
-
-	var organic_material := _organic_material()
-	for descendant in model_root.find_children("*", "MeshInstance3D", true, false):
-		var mesh_instance := descendant as MeshInstance3D
-		mesh_instance.material_override = organic_material
-		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-
-	for side_name in ["L", "R"]:
-		for row in 4:
-			var leg_name := "Leg_%s%d" % [side_name, row]
-			var upper_data := _capture_model_segment("%s_Upper" % leg_name)
-			var lower_data := _capture_model_segment("%s_Lower" % leg_name)
-			if upper_data.is_empty() or lower_data.is_empty():
-				push_warning("Missing prepared bone segments for: %s" % leg_name)
-				continue
-			model_leg_parts[leg_name] = {
-				"upper": upper_data,
-				"lower": lower_data
-			}
-	return model_leg_parts.size() == 8
-
-
-func _capture_model_segment(segment_name: String) -> Dictionary:
-	var segment_mesh := model_root.find_child(segment_name, true, false) as MeshInstance3D
-	if segment_mesh == null:
-		return {}
-	var end_marker := segment_mesh.find_child("End_%s" % segment_name, true, false) as Node3D
-	if end_marker == null:
-		return {}
-	var origin_local := to_local(segment_mesh.global_position)
-	var end_local := to_local(end_marker.global_position)
-	return {
-		"node": segment_mesh,
-		"rest_basis": global_basis.inverse() * segment_mesh.global_basis,
-		"rest_origin": origin_local,
-		"rest_vector": end_local - origin_local
-	}
-
-
-func _organic_material() -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.28, 0.035, 0.07)
-	material.metallic = 0.08
-	material.metallic_specular = 0.72
-	material.roughness = 0.24
-	material.clearcoat_enabled = true
-	material.clearcoat = 0.82
-	material.clearcoat_roughness = 0.1
-	material.rim_enabled = true
-	material.rim = 0.24
-	material.rim_tint = 0.32
-	material.emission_enabled = true
-	material.emission = Color(0.012, 0.0008, 0.002)
-	material.emission_energy_multiplier = 0.7
-	return material
 
 
 func _physics_process(delta: float) -> void:
@@ -196,23 +123,10 @@ func _build_legs() -> void:
 	for side in [-1.0, 1.0]:
 		for row in 4:
 			var radial: Vector3 = leg_directions[row] as Vector3
-			var outward := Vector3(radial.x * side, 0, radial.z).normalized()
-			var model_side := "R" if side < 0.0 else "L"
-			var model_data: Dictionary = model_leg_parts.get("Leg_%s%d" % [model_side, row], {}) as Dictionary
 			var hip_local := Vector3(side * 0.82, -0.12, radial.z * 0.82)
-			if not model_data.is_empty():
-				hip_local = (model_data["upper"] as Dictionary)["rest_origin"] as Vector3
+			var outward := Vector3(radial.x * side, 0, radial.z).normalized()
 			var desired := global_position + hip_local + outward * resting_leg_radius
 			var foot := _find_support(desired)
-			var upper_proxy := _add_bone("UpperLeg", 0.12)
-			var lower_proxy := _add_bone("LowerLeg", 0.09)
-			var knee_proxy := _add_joint("Knee", 0.16)
-			var foot_proxy := _add_joint("Foot", 0.11)
-			if not model_data.is_empty():
-				upper_proxy.visible = false
-				lower_proxy.visible = false
-				knee_proxy.visible = false
-				foot_proxy.visible = false
 			var leg := {
 				"hip": hip_local,
 				"outward": outward,
@@ -222,11 +136,10 @@ func _build_legs() -> void:
 				"step": 1.0,
 				"lift": 0.38 + float(row) * 0.03,
 				"arc": Vector3.ZERO,
-				"upper": upper_proxy,
-				"lower": lower_proxy,
-				"knee": knee_proxy,
-				"foot_joint": foot_proxy,
-				"model": model_data
+				"upper": _add_bone("UpperLeg", 0.12),
+				"lower": _add_bone("LowerLeg", 0.09),
+				"knee": _add_joint("Knee", 0.16),
+				"foot_joint": _add_joint("Foot", 0.11)
 			}
 			legs.append(leg)
 
@@ -241,7 +154,7 @@ func _move_body(delta: float) -> void:
 		velocity.x = direction.x * move_speed
 		velocity.z = direction.z * move_speed
 		move_and_slide()
-		look_at(global_position + direction, Vector3.UP)
+		look_at(global_position + direction, Vector3.UP, true)
 	else:
 		velocity.x = 0.0
 		velocity.z = 0.0
@@ -363,10 +276,6 @@ func _update_leg(leg: Dictionary, _index: int, delta: float) -> void:
 	_place_bone(leg["lower"], knee, foot)
 	leg["knee"].global_position = knee
 	leg["foot_joint"].global_position = foot
-	var model_data: Dictionary = leg["model"] as Dictionary
-	if not model_data.is_empty():
-		_place_model_segment(model_data["upper"] as Dictionary, hip, knee)
-		_place_model_segment(model_data["lower"] as Dictionary, knee, foot)
 
 
 func _find_support(desired: Vector3) -> Vector3:
@@ -440,30 +349,3 @@ func _place_bone(bone: MeshInstance3D, start: Vector3, end: Vector3) -> void:
 	bone.global_position = start.lerp(end, 0.5)
 	bone.global_basis = Basis(Quaternion(Vector3.UP, direction.normalized()))
 	bone.scale = Vector3(1.0, direction.length(), 1.0)
-
-
-func _place_model_segment(model_data: Dictionary, start: Vector3, end: Vector3) -> void:
-	var segment_mesh := model_data["node"] as MeshInstance3D
-	var rest_basis_local := model_data["rest_basis"] as Basis
-	var rest_vector_local := model_data["rest_vector"] as Vector3
-	var desired := end - start
-	if desired.length_squared() < 0.0001 or rest_vector_local.length_squared() < 0.0001:
-		return
-
-	var rest_vector_node := rest_basis_local.inverse() * rest_vector_local
-	var rest_basis_world := global_basis * rest_basis_local
-	var rest_direction_world := rest_basis_world * rest_vector_node
-	var rotation_delta := Basis(Quaternion(rest_direction_world.normalized(), desired.normalized()))
-	var length_ratio := desired.length() / rest_direction_world.length()
-	var stretch := _stretch_along(rest_vector_node.normalized(), length_ratio)
-	segment_mesh.global_transform = Transform3D(rotation_delta * rest_basis_world * stretch, start)
-
-
-func _stretch_along(direction: Vector3, ratio: float) -> Basis:
-	var unit := direction.normalized()
-	var amount := ratio - 1.0
-	return Basis(
-		Vector3(1.0 + amount * unit.x * unit.x, amount * unit.y * unit.x, amount * unit.z * unit.x),
-		Vector3(amount * unit.x * unit.y, 1.0 + amount * unit.y * unit.y, amount * unit.z * unit.y),
-		Vector3(amount * unit.x * unit.z, amount * unit.y * unit.z, 1.0 + amount * unit.z * unit.z)
-	)
